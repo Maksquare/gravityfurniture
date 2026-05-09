@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Furniture</title>
+<!-- css -->
+    <link rel="stylesheet" href="dist/output.css">
+    <link rel="stylesheet" href="css/style.css">
+<!-- Icons -->
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/fonts/remixicon.min.css">
+<!-- Fonts -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<!-- Swiper CSS from CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+ <style>
+    html { scroll-behavior: smooth; }
+
+    header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9999 !important;
+    }
+
+    section[id], footer[id] { scroll-margin-top: 95px; }
+    main > div:first-child   { z-index: 10 !important; }
+
+    /* ── BRAND TOKENS ── */
+   :root {
+    --accent:           #7d431d;   /* logo brown */
+    --accent-secondary: #fdf3e3;   /* warm cream */
+    --accent-hover:     #5e3115;   /* deep hover brown */
+    --accent-gold:      #f9cc89;   /* logo gold */
+    --accent-muted:     #c49a6c;   /* soft mid-tone */
+    --primary:          #2c1a0e;   /* deep espresso */
+    --secondary:        #6b4c35;   /* warm mid brown */
+    --border:           rgba(125, 67, 29, 0.2);
+}
+    /* ══════════════════════════════════════
+       MODAL SYSTEM
+    ══════════════════════════════════════ */
+    .modal-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(41, 47, 54, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 99990;
+        display: none;
+        align-items: center; justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-card {
+        background: #fff; border-radius: 32px;
+        width: 100%; max-width: 680px; max-height: 90vh;
+        overflow-y: auto; position: relative;
+        box-shadow: 0 40px 100px rgba(41,47,54,0.22), 0 0 0 1px var(--border);
+        scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+        opacity: 0; transform: translateY(32px) scale(0.96);
+    }
+    .modal-card::-webkit-scrollbar       { width: 4px; }
+    .modal-card::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+    .modal-hero { position: relative; height: 260px; overflow: hidden; border-radius: 24px 24px 0 0; }
+    .modal-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .modal-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(41,47,54,0.7) 100%); }
+    .modal-hero-badge {
+        position: absolute; top: 20px; left: 20px;
+        background: var(--accent); color: #fff;
+        font-family: 'Jost', sans-serif; font-size: 0.7rem; font-weight: 600;
+        letter-spacing: 0.12em; text-transform: uppercase;
+        padding: 6px 16px; border-radius: 100px;
+    }
+    .modal-close {
+        position: absolute; top: 16px; right: 16px;
+        width: 40px; height: 40px;
+        background: rgba(255,255,255,0.92); border: none; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 1.1rem; color: var(--primary);
+        transition: background 0.2s, transform 0.2s; z-index: 2;
+    }
+    .modal-close:hover { background: var(--accent); color: #fff; transform: rotate(90deg); }
+
+    .modal-body { padding: 36px 40px 44px; }
+    @media (max-width: 500px) { .modal-body { padding: 28px 24px 36px; } }
+
+    .modal-eyebrow { font-family:'Jost',sans-serif; font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+    .modal-title   { font-family:'DM Serif Display',serif; font-size:clamp(1.7rem,3.5vw,2.4rem); color:var(--primary); line-height:1.1; margin-bottom:18px; }
+    .modal-desc    { font-family:'Jost',sans-serif; font-size:0.96rem; color:var(--secondary); line-height:1.8; font-weight:300; margin-bottom:32px; }
+
+    .modal-features { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:36px; }
+    @media (max-width:500px) { .modal-features { grid-template-columns:1fr; } }
+    .modal-feature { display:flex; align-items:flex-start; gap:12px; padding:16px; background:var(--accent-secondary); border-radius:14px; border:1px solid var(--border); }
+    .modal-feature i { color:var(--accent); font-size:1.3rem; flex-shrink:0; margin-top:2px; }
+    .modal-feature-text strong { display:block; font-family:'Jost',sans-serif; font-size:0.85rem; font-weight:600; color:var(--primary); margin-bottom:3px; }
+    .modal-feature-text span   { font-family:'Jost',sans-serif; font-size:0.8rem; color:var(--secondary); font-weight:300; line-height:1.4; }
+
+    .modal-divider { height:1px; background:var(--border); margin:0 0 28px; }
+    .modal-cta     { display:flex; gap:14px; flex-wrap:wrap; }
+
+    .modal-btn-primary {
+        display:inline-flex; align-items:center; gap:8px; padding:14px 30px;
+        background:var(--primary); color:#fff; border:2px solid var(--primary);
+        border-radius:100px; font-family:'Jost',sans-serif; font-size:0.82rem; font-weight:500;
+        letter-spacing:0.07em; text-transform:uppercase; text-decoration:none; cursor:pointer;
+        transition:background 0.22s, border-color 0.22s, transform 0.22s;
+    }
+    .modal-btn-primary:hover { background:var(--accent); border-color:var(--accent); transform:translateY(-2px); }
+
+    .modal-btn-outline {
+        display:inline-flex; align-items:center; gap:8px; padding:14px 30px;
+        background:transparent; color:var(--primary); border:2px solid var(--border);
+        border-radius:100px; font-family:'Jost',sans-serif; font-size:0.82rem; font-weight:500;
+        letter-spacing:0.07em; text-transform:uppercase; text-decoration:none; cursor:pointer;
+        transition:border-color 0.22s, background 0.22s, transform 0.22s;
+    }
+    .modal-btn-outline:hover { border-color:var(--accent); background:var(--accent-secondary); transform:translateY(-2px); }
+
+    /* Compact (no hero image) modals */
+    .modal-card--compact { max-width:520px; }
+    .modal-compact-header { padding:32px 36px 0; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    @media (max-width:500px) { .modal-compact-header { padding:24px 22px 0; } }
+    .modal-compact-icon { width:58px; height:58px; border-radius:18px; background:var(--accent-secondary); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:var(--accent); flex-shrink:0; }
+
+    /* ── CONTACT OPTIONS ── */
+    .contact-option { display:flex; align-items:center; gap:18px; padding:20px 22px; border-radius:18px; border:1.5px solid var(--border); background:#fff; text-decoration:none; color:var(--primary); cursor:pointer; transition:border-color 0.22s, box-shadow 0.22s, transform 0.22s; position:relative; overflow:hidden; }
+    .contact-option::before { content:''; position:absolute; inset:0; background:var(--accent-secondary); opacity:0; transition:opacity 0.22s; }
+    .contact-option:hover { border-color:var(--accent); box-shadow:0 8px 32px rgba(205,162,116,0.18); transform:translateY(-3px); }
+    .contact-option:hover::before { opacity:1; }
+    .contact-option > * { position:relative; z-index:1; }
+    .contact-option__icon { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+    .contact-option__text strong { display:block; font-family:'Jost',sans-serif; font-size:1rem; font-weight:600; color:var(--primary); margin-bottom:3px; }
+    .contact-option__text span   { font-family:'Jost',sans-serif; font-size:0.82rem; color:var(--secondary); font-weight:300; }
+    .contact-option__arrow { margin-left:auto; color:var(--accent); font-size:1.3rem; transition:transform 0.22s; }
+    .contact-option:hover .contact-option__arrow { transform:translateX(4px); }
+
+    /* ── SOCIAL CARDS ── */
+    .social-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:480px) { .social-grid { grid-template-columns:1fr; } }
+    .social-card { display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:18px; border:1.5px solid var(--border); text-decoration:none; color:var(--primary); cursor:pointer; transition:border-color 0.22s, box-shadow 0.22s, transform 0.22s, background 0.22s; position:relative; overflow:hidden; }
+    .social-card:hover { transform:translateY(-3px); box-shadow:0 10px 32px rgba(0,0,0,0.10); border-color:transparent; }
+    .social-card > * { position:relative; z-index:1; }
+    .social-card--instagram:hover { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+    .social-card--facebook:hover  { background:#1877f2; }
+    .social-card--twitter:hover   { background:#000; }
+    .social-card--linkedin:hover  { background:#0a66c2; }
+    .social-card--youtube:hover   { background:#ff0000; opacity: 0.65;}
+    .social-card--tiktok:hover    { background:#010101; }
+    .social-card:hover .social-card__name,
+    .social-card:hover .social-card__handle,
+    .social-card:hover .social-card__arrow { color:#fff !important; }
+    .social-card__icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; background:var(--accent-secondary); transition:background 0.22s; }
+    .social-card:hover .social-card__icon { background:rgba(255,255,255,0.2); }
+    .social-card__name   { font-family:'Jost',sans-serif; font-size:0.9rem; font-weight:600; color:var(--primary); display:block; transition:color 0.22s; }
+    .social-card__handle { font-family:'Jost',sans-serif; font-size:0.76rem; color:var(--secondary); font-weight:300; transition:color 0.22s; }
+    .social-card__arrow  { margin-left:auto; color:var(--accent); font-size:1.1rem; transition:transform 0.22s, color 0.22s; }
+    .social-card:hover .social-card__arrow { transform:translateX(3px); }
+
+    /* ── GALLERY MODAL ── */
+    #modal-gallery { align-items:stretch; padding:0; }
+    .gallery-modal-card { background:#111418; width:100%; height:100%; max-width:100%; max-height:100%; border-radius:0; display:flex; flex-direction:column; overflow:hidden; opacity:0; transform:scale(0.97); }
+
+    .gallery-topbar { display:flex; align-items:center; justify-content:space-between; padding:18px 28px; background:rgba(0,0,0,0.5); backdrop-filter:blur(12px); border-bottom:1px solid rgba(205,162,116,0.15); flex-shrink:0; gap:16px; flex-wrap:wrap; }
+    .gallery-topbar__left  { display:flex; align-items:center; gap:14px; min-width:0; }
+    .gallery-topbar__right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .gallery-category-badge { background:var(--accent); color:#fff; font-family:'Jost',sans-serif; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; padding:5px 14px; border-radius:100px; white-space:nowrap; }
+    .gallery-title { font-family:'DM Serif Display',serif; font-size:1.1rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .gallery-close-btn { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:1.1rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s, transform 0.2s; }
+    .gallery-close-btn:hover { background:var(--accent); transform:rotate(90deg); }
+
+    .gallery-stage    { flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:0; }
+    .gallery-img-track { display:flex; width:100%; height:100%; position:relative; }
+    .gallery-slide    { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; }
+    .gallery-slide.is-active { opacity:1; pointer-events:auto; }
+    .gallery-slide img { max-width:100%; max-height:100%; width:100%; height:100%; object-fit:contain; display:block; user-select:none; -webkit-user-drag:none; }
+
+    .gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:1.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; transition:background 0.2s, transform 0.2s, border-color 0.2s; backdrop-filter:blur(8px); }
+    .gallery-arrow:hover { background:var(--accent); border-color:var(--accent); transform:translateY(-50%) scale(1.1); }
+    .gallery-arrow--prev { left:20px; }
+    .gallery-arrow--next { right:20px; }
+    .gallery-arrow:disabled { opacity:0.25; pointer-events:none; }
+
+    .gallery-infobar { background:rgba(0,0,0,0.6); backdrop-filter:blur(12px); border-top:1px solid rgba(205,162,116,0.15); padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; flex-shrink:0; }
+    .gallery-infobar__meta  { display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .gallery-infobar__right { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+    .gallery-img-title { font-family:'DM Serif Display',serif; font-size:1.1rem; color:#fff; }
+    .gallery-img-sub   { font-family:'Jost',sans-serif; font-size:0.82rem; color:rgba(255,255,255,0.5); font-weight:300; }
+    .gallery-counter   { font-family:'DM Serif Display',serif; font-size:1rem; color:rgba(255,255,255,0.6); min-width:54px; text-align:center; }
+
+    .gallery-dots { display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; max-width:200px; }
+    .gallery-dot  { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.25); border:none; cursor:pointer; padding:0; transition:background 0.2s, width 0.3s; flex-shrink:0; }
+    .gallery-dot.is-active { background:var(--accent); width:20px; border-radius:3px; }
+
+    .gallery-contact-btn { display:inline-flex; align-items:center; gap:8px; padding:11px 24px; background:var(--accent); color:#fff; border:2px solid var(--accent); border-radius:100px; font-family:'Jost',sans-serif; font-size:0.8rem; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; text-decoration:none; cursor:pointer; transition:background 0.22s, transform 0.22s, border-color 0.22s; white-space:nowrap; }
+    .gallery-contact-btn:hover { background:var(--accent-hover); border-color:var(--accent-hover); transform:translateY(-2px); }
+
+    @media (max-width:640px) {
+        .gallery-topbar, .gallery-infobar { padding:14px 16px; }
+        .gallery-arrow { width:40px; height:40px; font-size:1.1rem; }
+        .gallery-arrow--prev { left:10px; }
+        .gallery-arrow--next { right:10px; }
+        .gallery-title { font-size:0.95rem; }
+    }
+ </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- header -->
+   <header class="sticky top-0 h-[90px] bg-white transition-all duration-300" style="z-index:9999; box-shadow: 0 2px 20px rgba(41,47,54,0.08);">
+    <div class="container mx-auto flex justify-between h-full items-center">
+        <a href="#home">
+            <img class="h-16 w-auto" src="assets/logo.svg" alt="Gravity Furniture">
+        </a>
+        <nav>
+            <div class="cursor-pointer lg:hidden" id="nav_trigger_btn">
+                <i class="ri-menu-4-line text-4xl" style="color: var(--primary);"></i>
+            </div>
+            <ul
+                id="nav_menu"
+                class="fixed w-full bg-white border-t top-[90px] left-0 right-0
+                       flex flex-col gap-4
+                       lg:relative lg:flex-row lg:gap-8 lg:p-0 lg:top-0 lg:border-none lg:flex
+                       overflow-hidden transition-all duration-300"
+                style="height:0; padding:0;"
+            >
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#works">Our Work</a></li>
+                <li><a href="#news">News</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+    <main class="max-w-[1920px] mx-auto bg-white overflow-hidden">
+        <div class="xl:bg-grid xl:bg-center xl:bg-repeat-y fixed top-[90px] bottom-0 left-0 right-0" style="z-index:5;"></div>
+
+        <!-- hero -->
+        <section id="home" class="hero h-[640px] xl:h-[840px] bg-hero bg-center lg:bg-cover bg-no-repeat bg-fixed xl:rounded-bl-[290px] relative z-20">
+            <div class="container mx-auto h-full flex items-center justify-center xl:justify-start">
+                <div class="hero__text w-[567px] flex flex-col items-center text-center xl:text-left lg:items-start">
+                    <h1 class="h1 mb-8">Elevate Your Space with Premium Furniture</h1>
+                    <p class="mb-8">Gravity Furniture brings you an exclusive collection of beautifully crafted, premium pieces designed to transform every room into a statement of luxury and comfort.</p>
+                    <a href="collection.html" class="group btn btn-primary mx-auto xl:mx-0 hover:text-white">Explore Collection <i class="ri-arrow-right-line text-accent group-hover:translate-x-1 group-hover:text-white  transition-all duration-300"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- steps -->
+        <section id="steps" class="steps mt-[80px] xl:mt-[200px] relative z-20">
+            <div class="container mx-auto">
+                <div class="grid grid-cols-1 gap-12 xl:grid-cols-3">
+                    <div class="steps__step text-center">
+                        <div class="mb-4"><i class="ri-compasses-2-line text-5xl text-accent"></i></div>
+                        <h3 class="h3 mb-5">Custom Design</h3>
+                        <p class="mb-5 max-w-md mx-auto">Work with our expert designers to craft bespoke furniture pieces tailored perfectly to your space and personal style.</p>
+                        <a class=" group font-medium flex justify-center gap-2 cursor-pointer read-more-btn" data-modal="modal-design">Read more <i class="ri-arrow-right-line group-hover:translate-x-1 transition-all duration-300 text-accent"></i></a>
+                    </div>
+                    <div class="steps__step text-center">
+                        <div class="mb-4"><i class="ri-magic-line text-5xl text-accent"></i></div>
+                        <h3 class="h3 mb-5">Premium Materials</h3>
+                        <p class="mb-5 max-w-md mx-auto">Every piece is crafted using the finest sustainably sourced hardwoods, luxurious fabrics, and top-grade metals for lasting beauty.</p>
+                        <a class="group font-medium flex justify-center gap-2 cursor-pointer read-more-btn" data-modal="modal-materials">Read more <i class="ri-arrow-right-line group-hover:translate-x-1 transition-all duration-300 text-accent"></i></a>
+                    </div>
+                    <div class="steps__step text-center">
+                        <div class="mb-4"><i class="ri-tools-line text-5xl text-accent"></i></div>
+                        <h3 class="h3 mb-5">White Glove Delivery</h3>
+                        <p class="mb-5 max-w-md mx-auto">We handle everything from delivery to in-home setup, ensuring your new furniture is perfectly placed and ready to enjoy.</p>
+                        <a class="group font-medium flex justify-center gap-2 cursor-pointer read-more-btn " data-modal="modal-delivery">Read more <i class="ri-arrow-right-line group-hover:translate-x-1 transition-all duration-300 text-accent"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- about -->
+        <section id="about" class="about mt-[80px] xl:mt-[200px] relative z-20">
+            <div class="container mx-auto xl:px-0">
+                <div class="flex flex-col xl:flex-row text-center xl:text-left justify-between items-center gap-8 xl:gap-[74px]">
+                    <div class="about__text flex-1 order-2 xl:order-none max-w-xl xl:max-w-[410px] flex flex-col items-center xl:items-start gap-8">
+                        <h2 class="h2">Crafted for Those Who Demand the Finest</h2>
+                        <p>Gravity Furniture was founded on a singular belief — that the furniture you live with should be as extraordinary as the life you lead. Each of our pieces is handcrafted by master artisans, blending timeless aesthetics with modern functionality.</p>
+                        <button id="phone-trigger" class="flex items-center justify-center xl:justify-start gap-4 group cursor-pointer bg-transparent border-none p-0 text-left w-full xl:w-auto focus:outline-none">
+                            <div class="bg-accent/15 w-[93px] h-[93px] rounded-full flex justify-center items-center transition-all duration-300 group-hover:bg-accent/30 group-hover:scale-105">
+                                <i class="ri-phone-fill text-accent text-4xl"></i>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-2xl font-bold group-hover:text-accent transition-colors duration-200">0912 345 6781</div>
+                                <div class="flex items-center gap-1 text-sm" style="color:var(--secondary)">Tap to connect <i class="ri-arrow-right-s-line text-accent"></i></div>
+                            </div>
+                        </button>
+                        <button id="showroom-trigger" class="group btn btn-primary">Book a Showroom Visit <i class=" group-hover:translate-x-1 group-hover:text-white transition-all duration-300 ri-arrow-right-line text-accent"></i></button>
+                    </div>
+                    <div class="about__img order-1 xl:order:none max-w-[453px] mx-auto xl:max-w-none xl:mx-0">
+                        <img src="assets/about/img.png" alt="Premium furniture showcase">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- testimonials -->
+        <section id="testimonials" class="testimonial mt-[80px] xl:mt-[200px] relative z-20">
+            <div class="testimonial__bg container mx-auto bg-accent-secondary rounded-[70px] px-6">
+                <div class="flex flex-col items-center pt-[88px] pb-[110px]">
+                    <h2 class="testimonial__title h2 mb-9 text-center">What Our Clients Say</h2>
+                    <div class="w-full">
+                        <div class="swiper testimonial-swiper" style="height:400px;">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="testimonial__item w-full max-w-[450px] h-[340px] bg-white rounded-[30px] flex flex-col justify-center p-9 mx-auto">
+                                        <div class="flex gap-4 mb-6"><img src="assets/testimonial/01.png" alt=""><div><h3 class="h3">Nattasha Mith</h3><div>Greenville, USA</div></div></div>
+                                        <p>Gravity Furniture completely transformed our living room. The craftsmanship is absolutely unmatched — every detail is perfect.</p>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="testimonial__item w-full max-w-[450px] h-[340px] bg-white rounded-[30px] flex flex-col justify-center p-9 mx-auto">
+                                        <div class="flex gap-4 mb-6"><img src="assets/testimonial/02.png" alt=""><div><h3 class="h3">Jessica White</h3><div>Oak Ridge, USA</div></div></div>
+                                        <p>I've purchased luxury furniture from many places, but Gravity stands apart. The quality, the service, and the beauty of each piece is truly exceptional.</p>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="testimonial__item w-full max-w-[450px] h-[340px] bg-white rounded-[30px] flex flex-col justify-center p-9 mx-auto">
+                                        <div class="flex gap-4 mb-6"><img src="assets/testimonial/03.png" alt=""><div><h3 class="h3">Mike Davis</h3><div>Berlin, Germany</div></div></div>
+                                        <p>The bespoke dining table we ordered is the centrepiece of our home. Everyone who visits immediately asks where it came from. Truly world-class work.</p>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="testimonial__item w-full max-w-[450px] h-[340px] bg-white rounded-[30px] flex flex-col justify-center p-9 mx-auto">
+                                        <div class="flex gap-4 mb-6"><img src="assets/testimonial/04.png" alt=""><div><h3 class="h3">Olivia Wilson</h3><div>Paris, France</div></div></div>
+                                        <p>From the showroom experience to the white glove delivery, every step was flawless. Gravity Furniture has a customer for life in me.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- brands -->
+        <section class="brands mt-[80px] xl:mt-[150px] relative z-20">
+            <div class="container mx-auto">
+                <div class="flex flex-col xl:flex-row justify-between items-center gap-12">
+                    <img class="brands__img" src="assets/brands/01.svg" alt="">
+                    <img class="brands__img" src="assets/brands/02.svg" alt="">
+                    <img class="brands__img" src="assets/brands/03.svg" alt="">
+                    <img class="brands__img" src="assets/brands/04.svg" alt="">
+                    <img class="brands__img" src="assets/brands/05.svg" alt="">
+                </div>
+            </div>
+        </section>
+
+        <!-- works -->
+        <section id="works" class="works mt-[80px] xl:mt-[150px] relative z-20">
+            <div class="container mx-auto xl:px-0">
+                <div class="text-center mb-24">
+                    <h2 class="work__title h2 mb-4">Our Signature Collections</h2>
+                    <p class="work__subtitle max-w-3xl mx-auto">Explore our curated portfolio of premium furniture pieces, each one a testament to masterful craftsmanship and refined design sensibility.</p>
+                </div>
+                <div class="work__grid grid grid-cols-1 xl:grid-cols-2 gap-x-[104px] gap-y-[56px]">
+
+                    <div class="work-item w-full max-w-[548px] h-full mx-auto" data-category="living">
+                        <div class="work-item__img-wrap mb-6 overflow-hidden rounded-2xl cursor-pointer relative group">
+                            <img class="w-full object-cover transition-transform duration-700 group-hover:scale-105" src="assets/work/01.png" alt="Luxury Living Room Set" onerror="this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=700&q=80&auto=format&fit=crop'">
+                            <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-all duration-300 flex items-center justify-center"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100"><i class="ri-zoom-in-line text-primary text-xl"></i></div></div>
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <div><h3 class="h3">Luxury Living Room Set</h3><p>Sofas &amp; Lounge Furniture</p></div>
+                            <button class="work-arrow bg-accent-secondary w-[70px] h-[70px] rounded-full transition-all duration-300 hover:bg-accent hover:scale-110 flex items-center justify-center"><i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="work-item w-full max-w-[548px] h-full mx-auto" data-category="office">
+                        <div class="work-item__img-wrap mb-6 overflow-hidden rounded-2xl cursor-pointer relative group">
+                            <img class="w-full object-cover transition-transform duration-700 group-hover:scale-105" src="assets/work/02.png" alt="Executive Home Office" onerror="this.src='https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=700&q=80&auto=format&fit=crop'">
+                            <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-all duration-300 flex items-center justify-center"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100"><i class="ri-zoom-in-line text-primary text-xl"></i></div></div>
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <div><h3 class="h3">Executive Home Office</h3><p>Desks &amp; Workspaces</p></div>
+                            <button class="work-arrow bg-accent-secondary w-[70px] h-[70px] rounded-full transition-all duration-300 hover:bg-accent hover:scale-110 flex items-center justify-center"><i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="work-item w-full max-w-[548px] h-full mx-auto" data-category="bedroom">
+                        <div class="work-item__img-wrap mb-6 overflow-hidden rounded-2xl cursor-pointer relative group">
+                            <img class="w-full object-cover transition-transform duration-700 group-hover:scale-105" src="assets/work/03.png" alt="Bespoke Bedroom Suite" onerror="this.src='https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=700&q=80&auto=format&fit=crop'">
+                            <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-all duration-300 flex items-center justify-center"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100"><i class="ri-zoom-in-line text-primary text-xl"></i></div></div>
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <div><h3 class="h3">Bespoke Bedroom Suite</h3><p>Beds &amp; Bedroom Furniture</p></div>
+                            <button class="work-arrow bg-accent-secondary w-[70px] h-[70px] rounded-full transition-all duration-300 hover:bg-accent hover:scale-110 flex items-center justify-center"><i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="work-item w-full max-w-[548px] h-full mx-auto" data-category="dining">
+                        <div class="work-item__img-wrap mb-6 overflow-hidden rounded-2xl cursor-pointer relative group">
+                            <img class="w-full object-cover transition-transform duration-700 group-hover:scale-105" src="assets/work/04.png" alt="Artisan Dining Collection" onerror="this.src='https://images.unsplash.com/photo-1617806118233-18e1de247200?w=700&q=80&auto=format&fit=crop'">
+                            <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-all duration-300 flex items-center justify-center"><div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100"><i class="ri-zoom-in-line text-primary text-xl"></i></div></div>
+                        </div>
+                        <div class="flex justify-between items-center w-full">
+                            <div><h3 class="h3">Artisan Dining Collection</h3><p>Tables &amp; Dining Sets</p></div>
+                            <button class="work-arrow bg-accent-secondary w-[70px] h-[70px] rounded-full transition-all duration-300 hover:bg-accent hover:scale-110 flex items-center justify-center"><i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats mt-[80px] xl:mt-[150px] relative z-20 bg-accent-secondary py-[80px] xl:py-[150px]">
+            <div class="container mx-auto">
+                <div class="grid grid-cols-1 xl:grid-cols-4 gap-12">
+                    <div class="stats__item text-center xl:border-r xl:border-accent"><h3 class="h1 font-primary text-accent">320</h3><p>Pieces Crafted</p></div>
+                    <div class="stats__item text-center xl:border-r xl:border-accent"><h3 class="h1 font-primary text-accent">48</h3><p>Active Orders</p></div>
+                    <div class="stats__item text-center xl:border-r xl:border-accent"><h3 class="h1 font-primary text-accent">97</h3><p>Happy Clients</p></div>
+                    <div class="stats__item text-center xl:border-r"><h3 class="h1 font-primary text-accent">18</h3><p>Years of Mastery</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- news -->
+      <!-- news -->
+<section id="news" class="news mt-[80px] xl:mt-[150px] relative z-20">
+    <div class="container mx-auto px-0">
+        <div class="max-w-[810px] mx-auto text-center mb-[52px]">
+            <h2 class="news__title h2 mb-3">Articles &amp; News</h2>
+            <p class="news__subtitle">Stay inspired with the latest trends in premium furniture, interior design insights, and behind-the-scenes stories from the Gravity Furniture workshop.</p>
+        </div>
+        <div class="news__grid grid grid-cols-1 xl:grid-cols-3 gap-[27px]">
+
+            <div class="news__item w-full max-w-[382px] h-[520px] border border-primary/20 rounded-[62px] p-[20px] hover:bg-accent-secondary transition-all group cursor-pointer mx-auto xl:mx-0" data-news="sofa">
+                <img class="mb-5 w-full object-cover rounded-[42px] h-[280px]" src="assets/news/01.png" alt="">
+                <div class="flex flex-col gap-[30px]">
+                    <h3 class="h3">The Art of Choosing the Perfect Statement Sofa</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-base">14 March, 2026</p>
+                        <button class="bg-accent-secondary w-[52px] h-[52px] rounded-full group-hover:bg-white transition-all flex items-center justify-center">
+                            <i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news__item w-full max-w-[382px] h-[520px] border border-primary/20 rounded-[62px] p-[20px] hover:bg-accent-secondary transition-all group cursor-pointer mx-auto xl:mx-0" data-news="wood">
+                <img class="mb-5 w-full object-cover rounded-[42px] h-[280px]" src="assets/news/02.png" alt="">
+                <div class="flex flex-col gap-[30px]">
+                    <h3 class="h3">Sustainable Luxury: How We Source Our Premium Woods</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-base">02 April, 2026</p>
+                        <button class="bg-accent-secondary w-[52px] h-[52px] rounded-full group-hover:bg-white transition-all flex items-center justify-center">
+                            <i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="news__item w-full max-w-[382px] h-[520px] border border-primary/20 rounded-[62px] p-[20px] hover:bg-accent-secondary transition-all group cursor-pointer mx-auto xl:mx-0" data-news="trends">
+                <img class="mb-5 w-full object-cover rounded-[42px] h-[280px]" src="assets/news/03.png" alt="">
+                <div class="flex flex-col gap-[30px]">
+                    <h3 class="h3">5 Interior Design Trends Defining 2026</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-base">28 April, 2026</p>
+                        <button class="bg-accent-secondary w-[52px] h-[52px] rounded-full group-hover:bg-white transition-all flex items-center justify-center">
+                            <i class="ri-arrow-right-s-line text-3xl text-primary pl-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+        <!-- contact -->
+        <section id="contact" class="contact mt-[80px] xl:mt-[150px] relative z-20">
+            <div class="contact__container container mx-auto bg-primary sm:rounded-[70px] py-[80px]">
+                <div class="contact__text max-w-[640px] mx-auto text-center">
+                    <h2 class="h2 text-white mb-4">Ready to Furnish Your Dream Space?</h2>
+                    <p class="text-white mb-8 max-w-sm xl:max-w-none mx-auto">Visit our showroom or speak with a designer today — we'll bring your vision to life.</p>
+                    <button class="group btn btn-accent mx-auto">Get in Touch <i class="ri-arrow-right-line group-hover:translate-x-1 group-hover:text-white transition-all duration-300 text-primary"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- footer -->
+        <footer id="footer" class="footer mt-[80px] xl:mt-[150px] relative z-20">
+            <div class="container mx-auto px-0">
+                <div class="flex flex-col xl:flex-row xl:gap-[100px] xl:mb-[150px]">
+                    <div class="footer__item w-full max-w-[400px] mx-auto mb-8 text-center xl:text-left">
+                        <a class="flex justify-center xl:justify-start mb-8" href="#home"><img class="h-16 w-auto" src="assets/logo.svg" alt="Gravity Furniture"></a>
+                        <p class="mb-8 text-xl">Crafting premium, handmade furniture for those who appreciate the finest things in life.</p>
+                        <ul class="text-primary flex gap-[54px] justify-center xl:justify-start">
+                            <li><a href="#"><i class="ri-facebook-fill"></i></a></li>
+                            <li><a href="#"><i class="ri-twitter-x-fill"></i></a></li>
+                            <li><a href="#"><i class="ri-linkedin-fill"></i></a></li>
+                            <li><a href="#"><i class="ri-instagram-line"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="flex-1 flex flex-col xl:flex-row text-center xl:text-left gap-12 xl:gap-[100px] xl:justify-end">
+                        <div class="footer__item">
+                            <h3 class="h3 mb-3">Pages</h3>
+                            <ul class="flex flex-col gap-4">
+                                <li><a href="#about">About Us</a></li>
+                                <li><a href="#testimonials">Testimonials</a></li>
+                                <li><a href="#works">Our Work</a></li>
+                                <li><a href="#news">News</a></li>
+                                <li><a href="#contact">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer__item">
+                            <h3 class="h3 mb-3">Collections</h3>
+                            <ul class="flex flex-col gap-4">
+                                <li><a href="#works">Living Room</a></li>
+                                <li><a href="#works">Bedroom</a></li>
+                                <li><a href="#works">Dining Room</a></li>
+                                <li><a href="#works">Home Office</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer__item max-w-[260px] mx-auto xl:mx-0">
+                            <h3 class="h3 mb-3">Contact</h3>
+                            <div class="flex flex-col gap-6 text-[20px]">
+                                <p>14 Craftsman Boulevard, Addis Ababa, Ethiopia</p>
+                                <p>hello@gravityfurniture.com</p>
+                                <p>(123) 456 - 7890</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer__copyright text-center text-lg py-10 bg-white xl:border-t">
+                <p>Copyright &copy; 2026 Gravity Furniture. All rights reserved.</p>
+            </div>
+        </footer>
+
+<!-- News Modal -->
+<div class="news-modal-backdrop" id="modal-news" role="dialog" aria-modal="true">
+    <div class="news-modal-card">
+
+        <!-- Top bar with tabs -->
+        <div class="news-modal-topbar">
+            <div class="news-modal-tabs">
+                <button class="news-modal-tab is-active" data-slide="0">Statement Sofa</button>
+                <button class="news-modal-tab" data-slide="1">Premium Woods</button>
+                <button class="news-modal-tab" data-slide="2">2026 Trends</button>
+            </div>
+            <button class="news-modal-close-btn" id="news-modal-close"><i class="ri-close-line"></i></button>
+        </div>
+
+        <!-- Slides wrapper -->
+        <div style="overflow:hidden; flex:1;">
+            <div class="news-slides-track" id="news-slides-track">
+
+                <!-- ── SLIDE 1: Statement Sofa ── -->
+                <div class="news-slide">
+                    <div class="news-slide__hero">
+                        <img src="assets/news/01.png" onerror="this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80&auto=format&fit=crop'" alt="Statement Sofa">
+                        <div class="news-slide__hero-overlay"></div>
+                        <div class="news-slide__hero-meta">
+                            <span class="news-tag">New Arrival</span>
+                            <span class="news-date">14 March, 2026 · 5 min read</span>
+                        </div>
+                    </div>
+                    <div class="news-slide__body">
+                        <p class="news-slide__eyebrow">Gravity Furniture — Living Room</p>
+                        <h2 class="news-slide__title">The Art of Choosing the Perfect Statement Sofa</h2>
+                        <p class="news-slide__intro">A sofa is more than seating — it is the gravitational centre of your living space. Our new 2026 Velvet Cloud collection redefines what a luxury sofa can be, blending organic form with museum-quality craftsmanship.</p>
+
+                        <div class="news-content-block">
+                            <h4>The Velvet Cloud Series — Now Available</h4>
+                            <p>After 14 months of development, our flagship Velvet Cloud sofa has arrived. Hand-stitched in bouclé and deep-pile velvet with solid walnut legs, each piece is assembled by a single master craftsman from start to finish — a process that takes up to 11 days per unit.</p>
+                        </div>
+
+                        <div class="news-pullquote">
+                            <p>"We wanted a sofa that felt like it had always belonged in the room — something timeless, not trendy."</p>
+                        </div>
+
+                        <div class="news-content-block">
+                            <h4>How to Choose Your Configuration</h4>
+                            <p>The Velvet Cloud is available in three configurations: a classic 3-seater, an L-shaped sectional, and a modular system that can be rearranged as your space evolves. All 14 colourways are available for custom order with a 6-week lead time.</p>
+                        </div>
+
+                        <div class="news-features-row">
+                            <span class="news-feature-pill"><i class="ri-palette-line"></i> 14 Colourways</span>
+                            <span class="news-feature-pill"><i class="ri-tools-line"></i> Handcrafted in 11 Days</span>
+                            <span class="news-feature-pill"><i class="ri-leaf-line"></i> Sustainably Sourced</span>
+                            <span class="news-feature-pill"><i class="ri-shield-check-line"></i> Lifetime Frame Guarantee</span>
+                        </div>
+
+                        <div class="news-slide__cta">
+                            <a href="#contact" class="modal-btn-primary news-close-trigger">Enquire About This Piece <i class="ri-arrow-right-line"></i></a>
+                            <a href="collection.html" class="modal-btn-outline">View Full Collection <i class="ri-eye-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── SLIDE 2: Premium Woods ── -->
+                <div class="news-slide">
+                    <div class="news-slide__hero">
+                        <img src="assets/news/02.png" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80&auto=format&fit=crop'" alt="Premium Woods">
+                        <div class="news-slide__hero-overlay"></div>
+                        <div class="news-slide__hero-meta">
+                            <span class="news-tag">Craftsmanship</span>
+                            <span class="news-date">02 April, 2026 · 6 min read</span>
+                        </div>
+                    </div>
+                    <div class="news-slide__body">
+                        <p class="news-slide__eyebrow">Gravity Furniture — Materials</p>
+                        <h2 class="news-slide__title">Sustainable Luxury: How We Source Our Premium Woods</h2>
+                        <p class="news-slide__intro">Every plank of wood that enters our workshop carries a story — of the forest it came from, the hands that felled it responsibly, and the months it spent drying before a craftsman ever touched it with a tool.</p>
+
+                        <div class="news-content-block">
+                            <h4>New: Ethiopian Olive Wood Collection</h4>
+                            <p>We are proud to announce our newest material partnership — a small cooperative of ethical foresters in southern Ethiopia who harvest olive wood from trees that have naturally completed their fruit-bearing lifecycle. The result is an extraordinarily dense, richly figured timber unlike anything we have worked with before.</p>
+                        </div>
+
+                        <div class="news-pullquote">
+                            <p>"Ethiopian olive wood has grain patterns so unique that no two pieces of furniture we make from it will ever look alike."</p>
+                        </div>
+
+                        <div class="news-content-block">
+                            <h4>Our Sourcing Standards</h4>
+                            <p>All timbers used by Gravity Furniture are FSC-certified or sourced through verified ethical partnerships. We conduct annual audits of every supplier and publish our full supply chain report each spring. Our walnut comes from managed forests in the US Midwest, our teak from a 40-year-old plantation in Myanmar, and our oak from Scandinavian community forests.</p>
+                        </div>
+
+                        <div class="news-features-row">
+                            <span class="news-feature-pill"><i class="ri-leaf-line"></i> FSC Certified</span>
+                            <span class="news-feature-pill"><i class="ri-global-line"></i> 6 Countries Sourced</span>
+                            <span class="news-feature-pill"><i class="ri-file-text-line"></i> Annual Audit Published</span>
+                            <span class="news-feature-pill"><i class="ri-heart-line"></i> Ethical Partnerships</span>
+                        </div>
+
+                        <div class="news-slide__cta">
+                            <a href="#contact" class="modal-btn-primary news-close-trigger">Talk to a Designer <i class="ri-arrow-right-line"></i></a>
+                            <a href="collection.html" class="modal-btn-outline">See the Wood Finishes <i class="ri-eye-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── SLIDE 3: 2026 Trends ── -->
+                <div class="news-slide">
+                    <div class="news-slide__hero">
+                        <img src="assets/news/03.png" onerror="this.src='https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&q=80&auto=format&fit=crop'" alt="2026 Trends">
+                        <div class="news-slide__hero-overlay"></div>
+                        <div class="news-slide__hero-meta">
+                            <span class="news-tag">Trends 2026</span>
+                            <span class="news-date">28 April, 2026 · 7 min read</span>
+                        </div>
+                    </div>
+                    <div class="news-slide__body">
+                        <p class="news-slide__eyebrow">Gravity Furniture — Design Insight</p>
+                        <h2 class="news-slide__title">5 Interior Design Trends Defining 2026</h2>
+                        <p class="news-slide__intro">From global design fairs to our own client conversations, five clear movements have emerged this year — and Gravity Furniture is already responding to each one with new pieces and finishes.</p>
+
+                        <div class="news-content-block">
+                            <h4>01 — Warm Minimalism</h4>
+                            <p>The cold, stark minimalism of the last decade is giving way to something warmer: natural textures, earthy palettes, and fewer but more considered pieces. Our new Terra dining range — in oiled oak and hand-thrown ceramic — is a direct response to this shift.</p>
+                        </div>
+
+                        <div class="news-content-block">
+                            <h4>02 — Sculptural Seating</h4>
+                            <p>Chairs and sofas are becoming art objects. Clients are asking for pieces that draw the eye even when unoccupied. Our Forme lounge chair, with its organically carved solid oak shell, has been our most requested piece of 2026.</p>
+                        </div>
+
+                        <div class="news-pullquote">
+                            <p>"Clients no longer want a room full of furniture. They want three or four exceptional pieces that define the space completely."</p>
+                        </div>
+
+                        <div class="news-content-block">
+                            <h4>03 — Integrated Lighting, 04 — Biophilic Design & 05 — Heirloom Thinking</h4>
+                            <p>Built-in brass lighting, living moss walls paired with furniture, and the return of pieces designed to be passed down through generations — these three trends point toward the same conclusion: people want furniture that means something, not just something that looks good in a photograph.</p>
+                        </div>
+
+                        <div class="news-features-row">
+                            <span class="news-feature-pill"><i class="ri-sun-line"></i> Warm Minimalism</span>
+                            <span class="news-feature-pill"><i class="ri-artboard-line"></i> Sculptural Seating</span>
+                            <span class="news-feature-pill"><i class="ri-lightbulb-line"></i> Integrated Lighting</span>
+                            <span class="news-feature-pill"><i class="ri-plant-line"></i> Biophilic Design</span>
+                            <span class="news-feature-pill"><i class="ri-time-line"></i> Heirloom Thinking</span>
+                        </div>
+
+                        <div class="news-slide__cta">
+                            <a href="#contact" class="modal-btn-primary news-close-trigger">Book a Design Consultation <i class="ri-arrow-right-line"></i></a>
+                            <a href="collection.html" class="modal-btn-outline">Explore New Arrivals <i class="ri-eye-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+               
+
+            </div><!-- end track -->
+        </div><!-- end overflow wrapper -->
+    </div>
+</div>
+
+    </main>
+
+
+    <!-- ══════════════ MODALS ══════════════ -->
+
+    <!-- Modal: Custom Design -->
+    <div class="modal-backdrop" id="modal-design" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-hero">
+                <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&q=80&auto=format&fit=crop" alt="">
+                <div class="modal-hero-overlay"></div>
+                <span class="modal-hero-badge">Our Process</span>
+                <button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-eyebrow">Gravity Furniture — Design Studio</p>
+                <h2 class="modal-title">Custom Design, Built Around You</h2>
+                <p class="modal-desc">Every client relationship begins with a conversation. Our senior designers sit with you — in your home or at our studio — to understand how you live, what you love, and what a space means to you.</p>
+                <div class="modal-features">
+                    <div class="modal-feature"><i class="ri-user-voice-line"></i><div class="modal-feature-text"><strong>Personal Consultation</strong><span>One-on-one sessions with a senior designer, in-studio or at your home.</span></div></div>
+                    <div class="modal-feature"><i class="ri-draft-line"></i><div class="modal-feature-text"><strong>Hand-Drawn Sketches</strong><span>Every concept begins on paper — never from a template.</span></div></div>
+                    <div class="modal-feature"><i class="ri-3d-cube-sphere-line"></i><div class="modal-feature-text"><strong>3D Visualisation</strong><span>Photorealistic renders so you see the piece before it's built.</span></div></div>
+                    <div class="modal-feature"><i class="ri-settings-3-line"></i><div class="modal-feature-text"><strong>Unlimited Revisions</strong><span>We refine until the design is exactly right. No extra charge.</span></div></div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-cta">
+                    <a href="#contact" class="modal-btn-primary modal-close-trigger">Book a Consultation <i class="ri-arrow-right-line"></i></a>
+                    <a href="collection.html" class="modal-btn-outline">View Collection <i class="ri-eye-line"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Premium Materials -->
+    <div class="modal-backdrop" id="modal-materials" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-hero">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80&auto=format&fit=crop" alt="">
+                <div class="modal-hero-overlay"></div>
+                <span class="modal-hero-badge">Craftsmanship</span>
+                <button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-eyebrow">Gravity Furniture — Materials</p>
+                <h2 class="modal-title">Only the World's Finest Materials</h2>
+                <p class="modal-desc">We travel to Portugal, Japan, and Scandinavia to source the timber, fabric, and metals that meet our exacting standards. Sustainability is baked into every sourcing decision we make.</p>
+                <div class="modal-features">
+                    <div class="modal-feature"><i class="ri-leaf-line"></i><div class="modal-feature-text"><strong>Sustainably Sourced Wood</strong><span>Grade-A walnut, oak, and teak — FSC-certified and ethically harvested.</span></div></div>
+                    <div class="modal-feature"><i class="ri-scissors-cut-line"></i><div class="modal-feature-text"><strong>Luxury Fabrics</strong><span>Bouclé, full-grain leather, and Sunbrella — chosen for beauty and durability.</span></div></div>
+                    <div class="modal-feature"><i class="ri-copper-coin-line"></i><div class="modal-feature-text"><strong>Solid Brass &amp; Steel</strong><span>Hardware and fixings that develop a rich patina over decades.</span></div></div>
+                    <div class="modal-feature"><i class="ri-shield-check-line"></i><div class="modal-feature-text"><strong>Lifetime Guarantee</strong><span>Every piece is covered for structural integrity — for life.</span></div></div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-cta">
+                    <a href="collection.html" class="modal-btn-primary">Explore Collection <i class="ri-arrow-right-line"></i></a>
+                    <a href="#contact" class="modal-btn-outline modal-close-trigger">Ask a Designer <i class="ri-message-3-line"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: White Glove Delivery -->
+    <div class="modal-backdrop" id="modal-delivery" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-hero">
+                <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80&auto=format&fit=crop" alt="">
+                <div class="modal-hero-overlay"></div>
+                <span class="modal-hero-badge">Delivery &amp; Setup</span>
+                <button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-eyebrow">Gravity Furniture — Delivery</p>
+                <h2 class="modal-title">White Glove, From Studio to Home</h2>
+                <p class="modal-desc">Our dedicated delivery team handles every step — from careful packaging and insured transit to final placement in your home. We don't leave until you're completely satisfied.</p>
+                <div class="modal-features">
+                    <div class="modal-feature"><i class="ri-truck-line"></i><div class="modal-feature-text"><strong>Insured Delivery</strong><span>Every shipment is fully insured door-to-door, globally.</span></div></div>
+                    <div class="modal-feature"><i class="ri-home-gear-line"></i><div class="modal-feature-text"><strong>In-Home Assembly</strong><span>Our team installs and assembles everything to specification.</span></div></div>
+                    <div class="modal-feature"><i class="ri-map-pin-time-line"></i><div class="modal-feature-text"><strong>Tracked Every Step</strong><span>Real-time updates from workshop departure to your front door.</span></div></div>
+                    <div class="modal-feature"><i class="ri-emotion-happy-line"></i><div class="modal-feature-text"><strong>Satisfaction Promise</strong><span>We return and re-position at no cost if anything isn't right.</span></div></div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-cta">
+                    <a href="#contact" class="modal-btn-primary modal-close-trigger">Get a Quote <i class="ri-arrow-right-line"></i></a>
+                    <a href="collection.html" class="modal-btn-outline">Browse Pieces <i class="ri-eye-line"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Gallery -->
+    <div class="modal-backdrop" id="modal-gallery" role="dialog" aria-modal="true">
+        <div class="gallery-modal-card" id="gallery-card">
+            <div class="gallery-topbar">
+                <div class="gallery-topbar__left">
+                    <span class="gallery-category-badge" id="gallery-badge">Living Room</span>
+                    <span class="gallery-title" id="gallery-cat-title">Luxury Living Room Set</span>
+                </div>
+                <div class="gallery-topbar__right">
+                    <div class="gallery-dots" id="gallery-dots"></div>
+                    <button class="gallery-close-btn" id="gallery-close-btn"><i class="ri-close-line"></i></button>
+                </div>
+            </div>
+            <div class="gallery-stage">
+                <div class="gallery-img-track" id="gallery-track"></div>
+                <button class="gallery-arrow gallery-arrow--prev" id="gallery-prev"><i class="ri-arrow-left-s-line"></i></button>
+                <button class="gallery-arrow gallery-arrow--next" id="gallery-next"><i class="ri-arrow-right-s-line"></i></button>
+            </div>
+            <div class="gallery-infobar">
+                <div class="gallery-infobar__meta">
+                    <span class="gallery-img-title" id="gallery-img-title"></span>
+                    <span class="gallery-img-sub"   id="gallery-img-sub"></span>
+                </div>
+                <div class="gallery-infobar__right">
+                    <span class="gallery-counter" id="gallery-counter">1 / 4</span>
+                    <a href="#contact" class="gallery-contact-btn gallery-close-trigger"><i class="ri-message-3-line"></i> Enquire Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Phone -->
+    <div class="modal-backdrop" id="modal-phone" role="dialog" aria-modal="true">
+        <div class="modal-card modal-card--compact">
+            <div class="modal-compact-header">
+                <div class="modal-compact-icon"><i class="ri-phone-line"></i></div>
+                <button class="modal-close" style="position:relative;top:0;right:0;flex-shrink:0;"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" style="padding-top:24px;">
+                <p class="modal-eyebrow">Gravity Furniture — Get in Touch</p>
+                <h2 class="modal-title" style="font-size:1.8rem;margin-bottom:10px;">How would you like to reach us?</h2>
+                <p class="modal-desc" style="margin-bottom:28px;">Choose the most convenient way to connect with our team. Available Monday–Saturday, 9am–7pm.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <a href="tel:+251912345678" class="contact-option">
+                        <div class="contact-option__icon" style="background:rgba(34,197,94,0.12);color:#16a34a;"><i class="ri-phone-fill"></i></div>
+                        <div class="contact-option__text"><strong>Call Us</strong><span>Speak directly with a designer — 0912 345 6781</span></div>
+                        <i class="ri-arrow-right-s-line contact-option__arrow"></i>
+                    </a>
+                    <a href="sms:+251912345678" class="contact-option">
+                        <div class="contact-option__icon" style="background:rgba(59,130,246,0.12);color:#2563eb;"><i class="ri-chat-1-fill"></i></div>
+                        <div class="contact-option__text"><strong>Send a Text</strong><span>Drop us an SMS and we'll reply within the hour</span></div>
+                        <i class="ri-arrow-right-s-line contact-option__arrow"></i>
+                    </a>
+                    <a href="https://wa.me/251912345678?text=Hello%20Gravity%20Furniture" target="_blank" rel="noopener" class="contact-option">
+                        <div class="contact-option__icon" style="background:rgba(37,211,102,0.12);color:#25d366;"><i class="ri-whatsapp-fill"></i></div>
+                        <div class="contact-option__text"><strong>WhatsApp</strong><span>Message us on WhatsApp — quick and instant</span></div>
+                        <i class="ri-arrow-right-s-line contact-option__arrow"></i>
+                    </a>
+                </div>
+                <p style="text-align:center;margin-top:22px;font-size:0.8rem;color:var(--secondary);font-family:'Jost',sans-serif;"><i class="ri-map-pin-2-line" style="color:var(--accent);"></i> 14 Craftsman Boulevard, Addis Ababa, Ethiopia</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Showroom / Social -->
+    <div class="modal-backdrop" id="modal-showroom" role="dialog" aria-modal="true">
+        <div class="modal-card modal-card--compact">
+            <div class="modal-compact-header">
+                <div class="modal-compact-icon"><i class="ri-calendar-check-line"></i></div>
+                <button class="modal-close" style="position:relative;top:0;right:0;flex-shrink:0;"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" style="padding-top:24px;">
+                <p class="modal-eyebrow">Gravity Furniture — Connect With Us</p>
+                <h2 class="modal-title" style="font-size:1.8rem;margin-bottom:10px;">Follow Us &amp; Book a Visit</h2>
+                <p class="modal-desc" style="margin-bottom:28px;">Explore our latest projects across our social channels or reach out to arrange your private showroom experience.</p>
+                <div class="social-grid">
+                    <a href="https://instagram.com/gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--instagram"><div class="social-card__icon"><i class="ri-instagram-line" style="color:#e1306c;"></i></div><div><span class="social-card__name">Instagram</span><span class="social-card__handle">@gravityfurniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                    <a href="https://facebook.com/gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--facebook"><div class="social-card__icon"><i class="ri-facebook-fill" style="color:#1877f2;"></i></div><div><span class="social-card__name">Facebook</span><span class="social-card__handle">Gravity Furniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                    <a href="https://twitter.com/gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--twitter"><div class="social-card__icon"><i class="ri-twitter-x-fill" style="color:#000;"></i></div><div><span class="social-card__name">X (Twitter)</span><span class="social-card__handle">@gravityfurniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                    <a href="https://linkedin.com/company/gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--linkedin"><div class="social-card__icon"><i class="ri-linkedin-fill" style="color:#0a66c2;"></i></div><div><span class="social-card__name">LinkedIn</span><span class="social-card__handle">Gravity Furniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                    <a href="https://youtube.com/@gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--youtube"><div class="social-card__icon"><i class="ri-youtube-fill" style="color:#ff0000;"></i></div><div><span class="social-card__name">YouTube</span><span class="social-card__handle">Gravity Furniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                    <a href="https://tiktok.com/@gravityfurniture" target="_blank" rel="noopener" class="social-card social-card--tiktok"><div class="social-card__icon"><i class="ri-tiktok-fill" style="color:#010101;"></i></div><div><span class="social-card__name">TikTok</span><span class="social-card__handle">@gravityfurniture</span></div><i class="ri-arrow-right-s-line social-card__arrow"></i></a>
+                </div>
+                <div class="modal-divider" style="margin-top:28px;"></div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;">
+                    <a href="https://wa.me/251912345678?text=Hello!%20I%27d%20like%20to%20book%20a%20showroom%20visit." target="_blank" rel="noopener" class="modal-btn-primary" style="font-size:0.8rem;"><i class="ri-whatsapp-fill"></i> Book via WhatsApp</a>
+                    <a href="#contact" class="modal-btn-outline modal-close-trigger" style="font-size:0.8rem;"><i class="ri-mail-send-line"></i> Send an Enquiry</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════
+         SCRIPTS
+         Order: ScrollReveal → Swiper → All custom JS
+    ══════════════════════════════════════════ -->
+    <script src="js/scrollreveal.min.js"></script>
+
+    <!-- Swiper from CDN — guaranteed to load regardless of local file -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!--  -->
+<!-- Main js -->
+ <script src="js/main.js"></script>
+    
+</body>
+</html>
