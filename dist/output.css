@@ -994,11 +994,6 @@ video {
   background-color: rgb(255 255 255 / 0.9);
 }
 
-.bg-red-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(252 165 165 / var(--tw-bg-opacity));
-}
-
 .bg-hero {
   background-image: url(/assets/hero/bg.jpg);
 }
@@ -1157,10 +1152,6 @@ video {
 
 .opacity-0 {
   opacity: 0;
-}
-
-.opacity-30 {
-  opacity: 0.3;
 }
 
 .shadow-xl {
