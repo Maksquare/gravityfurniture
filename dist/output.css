@@ -1076,6 +1076,31 @@ video {
   padding-bottom: 80px;
 }
 
+.px-5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.py-6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
 .pb-\[110px\] {
   padding-bottom: 110px;
 }
@@ -1160,6 +1185,10 @@ video {
   font-style: italic;
 }
 
+.leading-relaxed {
+  line-height: 1.625;
+}
+
 .text-accent {
   --tw-text-opacity: 1;
   color: rgb(125 67 29 / var(--tw-text-opacity));
@@ -1205,6 +1234,10 @@ video {
 
 .text-white\/50 {
   color: rgb(255 255 255 / 0.5);
+}
+
+.text-white\/90 {
+  color: rgb(255 255 255 / 0.9);
 }
 
 .accent-secondary {
